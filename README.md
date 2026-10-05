@@ -4,7 +4,7 @@ Enterprise Forensic Monitoring, Tracking & Response Platform. Cross-platform sur
 
 ## Ownership
 
-Owned by **ZANAQ** (formerly Mascall Investments Private Ltd).
+Owned by **ZANAQ**.
 
 ---
 
