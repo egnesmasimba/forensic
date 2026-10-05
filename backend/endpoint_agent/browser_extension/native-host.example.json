@@ -1,0 +1,7 @@
+{
+  "name": "com.zanaq.endpoint_capture",
+  "description": "ZANAQ endpoint mail and download capture",
+  "path": "C:\\Program Files\\ZANAQ\\native-capture.cmd",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://REPLACE_WITH_YOUR_EXTENSION_ID/"]
+}

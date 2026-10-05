@@ -1,0 +1,3 @@
+flow_id,occurred_at,user,protocol,application,destination,bytes,connections
+example-flow-001,2026-10-03T09:00:00+02:00,example-user,https,browser,203.0.113.10,1048576,2
+example-flow-002,2026-10-03T09:05:00+02:00,example-user,custom,file-copy,198.51.100.20,104857600,120

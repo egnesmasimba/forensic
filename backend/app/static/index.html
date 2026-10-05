@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZANAQ Forensic smart</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">ZANAQ Forensic smart</p>
+      <h1>ZANAQ Forensic smart</h1>
+    </div>
+    <div class="top-actions">
+      <span id="signed-user"></span>
+<button id="phase3-open" type="button" hidden>Live analytics & biometrics</button>
+<button id="privacy-open" type="button" hidden>Privacy</button>
+<button id="education-open" type="button" hidden>Policy education</button>
+<button id="applications-open" type="button" hidden>Applications</button>
+      <button id="logout" type="button" hidden>Sign out</button>
+      <button id="change-password" type="button" hidden>Password</button>
+      <button id="iam-open" type="button" hidden>Identity &amp; access</button>
+      <button id="manage-users" type="button" hidden>Accounts</button>
+      <button id="activity-import" type="button" hidden>Activity & alerts</button>
+      <button id="open-links" type="button" hidden>Links</button>
+      <button id="open-processes" type="button" hidden>Processes</button>
+      <button id="open-analytics" type="button" hidden>Analytics</button>
+      <button id="open-profiles" type="button" hidden>Profiles</button>
+      <button id="open-dlp" type="button" hidden>DLP review</button>
+      <button id="open-compliance" type="button" hidden>Compliance</button>
+      <button id="open-automation" type="button" hidden>Response</button>
+      <button id="open-setup" type="button" hidden>Setup</button>
+      <button id="network-open" type="button" hidden>Network captures</button>
+      <button id="search-open" type="button" hidden>Search content</button>
+      <button id="replay-open" type="button" hidden>Session replay</button><button id="response-open" type="button" hidden>Endpoint response</button><button id="mail-open" type="button" hidden>Email review</button>
+      <button id="agents-open" type="button" hidden>Agents</button>
+      <button id="endpoint-events-open" type="button" hidden>Endpoint events</button>
+      <button id="new-case" type="button">New case</button>
+    </div>
+  </header>
+  <section id="privacy-dashboard" class="panel" hidden><h2>Privacy dashboard</h2><p>Stable pseudonyms and counts exclude identities and free text.</p><div id="privacy-counts"></div></section>
+  <main hidden>
+    <section class="panel" aria-label="Cases">
+      <form id="filters" class="filters">
+        <label>Search
+          <input id="q" type="search" placeholder="Title, assignee, type">
+        </label>
+        <label>Status
+          <select id="status">
+            <option value="">Any</option>
+          </select>
+        </label>
+        <label>Min score
+          <input id="min-score" type="number" min="0" max="1000" placeholder="0">
+        </label>
+        <label>Sort
+          <select id="sort">
+            <option value="score">Score</option>
+            <option value="updated">Updated</option>
+            <option value="created">Created</option>
+          </select>
+        </label>
+        <label>Order
+          <select id="order">
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+          </select>
+        </label>
+      </form>
+      <div id="report-columns" class="filters">
+        <label class="inline"><input type="checkbox" value="id" checked> ID</label>
+        <label class="inline"><input type="checkbox" value="title" checked> Title</label>
+        <label class="inline"><input type="checkbox" value="type" checked> Type</label>
+        <label class="inline"><input type="checkbox" value="status" checked> Status</label>
+        <label class="inline"><input type="checkbox" value="risk" checked> Risk</label>
+        <label class="inline"><input type="checkbox" value="score" checked> Score</label>
+        <label class="inline"><input type="checkbox" value="assignee" checked> Assignee</label>
+        <label class="inline"><input type="checkbox" value="alerts" checked> Alerts</label>
+        <label class="inline"><input type="checkbox" value="summary" checked> Summary</label>
+        <label class="inline"><input type="checkbox" value="updated" checked> Updated</label>
+      </div>
+      <div class="export-row">
+        <label>Image text<input id="ocr-q" maxlength="80" placeholder="Text read from a case image"></label>
+        <button id="ocr-search" type="button" class="secondary">Search image text</button>
+        <button id="export-csv" type="button" class="secondary">Export CSV</button>
+        <button id="export-excel" type="button" class="secondary">Export Excel</button>
+        <button id="report-builder-open" type="button" class="secondary">Report builder</button>
+        <label>Saved report<select id="saved-reports"><option value="">Current filters</option></select></label>
+        <button id="apply-report" type="button" class="secondary">Apply report</button>
+        <label>Report name<input id="report-name" maxlength="80" placeholder="Open high scores"></label>
+        <button id="save-report" type="button">Save report</button>
+        <button id="delete-report" type="button" class="secondary">Delete report</button>
+      </div>
+      <div id="ocr-results" class="stack"></div>
+      <div id="case-list" class="case-list"></div>
+    </section>
+    <section class="panel detail-panel" id="detail-panel" aria-live="polite"></section>
+  </main>
+  <dialog id="case-dialog">
+    <form id="case-form">
+      <h2>New case</h2>
+      <label>Title
+        <input id="case-title" required minlength="3" maxlength="200">
+      </label>
+      <div class="split">
+        <label>Type
+          <select id="case-type" required></select>
+        </label>
+        <label>Risk
+          <select id="case-risk" required></select>
+        </label>
+      </div>
+      <div class="split">
+        <label>Score
+          <input id="case-score" type="number" min="0" max="1000" value="0" required>
+        </label>
+        <label>Assignee
+          <input id="case-assignee" maxlength="120">
+        </label>
+      </div>
+      <p id="route-hint" class="muted"></p>
+      <div id="case-fields" class="stack"></div>
+      <label>Summary
+        <textarea id="case-summary" rows="4" maxlength="4000"></textarea>
+      </label>
+      <div class="dialog-actions">
+        <button type="button" id="cancel-case">Cancel</button>
+        <button type="submit">Create case</button>
+      </div>
+    </form>
+  </dialog>
+  <section id="login-panel" class="panel" style="max-width:420px;margin:40px auto">
+    <form id="login-form" class="stack">
+      <h2>Sign in</h2>
+      <label>Username<input id="username" autocomplete="username" required maxlength="120"></label>
+      <label>Password<input id="password" type="password" autocomplete="current-password" required maxlength="256"></label>
+      <label>One-time code<input id="login-otp" autocomplete="one-time-code" inputmode="numeric" maxlength="6"></label>
+      <input id="login-challenge" type="hidden">
+      <details><summary>Shared account: verify your personal identity</summary><label>Personal username<input id="login-personal" maxlength="120"></label><label>Personal password<input id="login-personal-password" type="password" maxlength="256"></label></details>
+      <button id="login-sms" type="button">Send SMS code</button>
+      <button type="submit">Sign in</button>
+    </form>
+    <!-- Shown only when the deployment enables self-registration; see /api/auth/registration. -->
+    <form id="register-form" class="stack" hidden>
+      <h2>Create an account</h2>
+      <p class="muted">New accounts start with read-only access. An administrator can grant more.</p>
+      <label>Username<input id="register-username" autocomplete="username" required maxlength="120"></label>
+      <label>Password<input id="register-password" type="password" autocomplete="new-password" required minlength="12" maxlength="256"></label>
+      <label>Confirm password<input id="register-confirm" type="password" autocomplete="new-password" required minlength="12" maxlength="256"></label>
+      <button type="submit">Create read-only account</button>
+    </form>
+  </section>
+  <dialog id="users-dialog">
+    <form id="user-form" class="stack">
+      <h2>Accounts</h2><div id="users-list"></div>
+      <label>Username<input id="user-username" required maxlength="120" autocomplete="off"></label>
+      <label>Password<input id="user-password" type="password" required minlength="12" maxlength="256" autocomplete="new-password"></label>
+      <label>Role<select id="user-role"><option value="viewer">Viewer</option><option value="investigator">Investigator</option><option value="administrator">Administrator</option></select></label>
+      <button type="submit">Create account</button>
+      <h3>Recent sign-in activity</h3>
+      <div id="auth-audit" class="stack"></div>
+      <button id="refresh-auth-audit" type="button">Refresh sign-in activity</button>
+      <button id="close-users" type="button">Close</button>
+    </form>
+  </dialog>
+  <dialog id="password-dialog">
+    <form id="password-form" class="stack">
+      <h2>Change password</h2>
+      <label>Current password<input id="current-password" type="password" required maxlength="256" autocomplete="current-password"></label>
+      <label>New password<input id="new-password" type="password" required minlength="12" maxlength="256" autocomplete="new-password"></label>
+      <button type="submit">Update password</button>
+      <button id="close-password" type="button">Close</button>
+    </form>
+  </dialog>
+  <dialog id="imports-dialog">
+    <h2>Activity & alerts</h2>
+    <form id="import-form" class="stack">
+      <h3>Import activity</h3>
+      <p>Upload an activity export. Review alerts are created for bulk exports of 1,000+ records and for 10 MB+ browser downloads, cloud sync transfers (OneDrive, Dropbox, Google Drive, Box), USB or removable copies, network-share copies, archives, and encrypted files.</p>
+      <p><a href="/static/activity-template.csv" download>Download example CSV</a></p>
+      <label>Source name<input id="import-source" required maxlength="80" placeholder="Back office audit log"></label>
+      <label>Activity CSV<input id="import-file" type="file" required accept=".csv"></label>
+      <button type="submit">Import activity</button>
+    </form>
+    <form id="email-form" class="stack">
+      <h3>Email metadata</h3>
+      <p class="muted">Sender, recipient domain, attachment name, size, and whether the attachment is encrypted. Message bodies and attachment contents are not part of this import.</p>
+      <p><a href="/static/email-template.csv" download>Download email metadata example</a></p>
+      <label>Source name<input id="email-source" required maxlength="80" value="Mail export"></label>
+      <label>Email metadata CSV<input id="email-file" type="file" required accept=".csv"></label>
+      <button type="submit">Import email metadata</button>
+    </form>
+    <form id="traffic-form" class="stack">
+      <h3>Traffic summary</h3>
+      <p class="muted">One row per flow. Review alerts cover unusual protocols, flows of 100 MB or more, and flows with 100 or more connections.</p>
+      <p><a href="/static/traffic-template.csv" download>Download traffic summary example</a></p>
+      <label>Source name<input id="traffic-source" required maxlength="80" value="Traffic summary"></label>
+      <label>Traffic CSV<input id="traffic-file" type="file" required accept=".csv"></label>
+      <button type="submit">Import traffic summary</button>
+    </form>
+    <form id="website-form" class="stack">
+      <h3>Website visits</h3>
+      <p class="muted">One row per visit. The stored site is the hostname. A visit whose category is denied raises one review alert for that user and category.</p>
+      <p><a href="/static/website-template.csv" download>Download website visit example</a></p>
+      <label>Source name<input id="website-source" required maxlength="80" value="Website visits"></label>
+      <label>Visit CSV<input id="website-file" type="file" required accept=".csv"></label>
+      <button type="submit">Import website visits</button>
+    </form>
+    <form id="website-rule-form" class="stack">
+      <h3>Website categories</h3>
+      <p class="muted">Map a hostname to one of the 42 categories. A rule also covers its subdomains. Unmapped hosts stay Uncategorized.</p>
+      <div id="website-report" class="stack"></div>
+      <label>Hostname<input id="website-host" maxlength="253" placeholder="example.com"></label>
+      <label>Category<select id="website-category"></select></label>
+      <button type="submit">Map hostname</button>
+      <div id="website-rules" class="stack"></div>
+    </form>
+    <form id="collect-form" class="stack">
+      <h3>Collect a file</h3>
+      <p class="muted">Text, binary, logs, XML, and activity CSV. Logs use: time user action destination bytes records.</p>
+      <label>Source name<input id="collect-source" required maxlength="80" value="Collected file"></label>
+      <label>File<input id="collect-file" type="file" required accept=".txt,.log,.xml,.csv,.bin,.dat"></label>
+      <button type="submit">Collect file</button>
+    </form>
+    <form id="table-form" class="stack">
+      <h3>Database table</h3>
+      <label>Source name<input id="table-source" required maxlength="80" value="Database table"></label>
+      <label>Table name<input id="table-name" required maxlength="64" placeholder="activity"></label>
+      <label>SQLite file<input id="table-file" type="file" required accept=".sqlite,.db"></label>
+      <button type="submit">Read table</button>
+    </form>
+    <form id="layout-form" class="stack">
+      <h3>Record layout</h3>
+      <label>Name<input id="layout-name" required maxlength="80"></label>
+      <label>Mode
+        <select id="layout-mode"><option value="fixed">Fixed width</option><option value="delimited">Delimited</option></select>
+      </label>
+      <label>Delimiter<input id="layout-delimiter" maxlength="1" value="|"></label>
+      <label>Specification<textarea id="layout-spec" rows="3" required placeholder='{"fields":[{"name":"event_id","start":0,"length":8}]}'></textarea></label>
+      <button type="submit">Save layout</button>
+    </form>
+    <form id="layout-apply" class="stack">
+      <label>Apply layout
+        <select id="layout-choice"></select>
+      </label>
+      <label>Layout file<input id="layout-file" type="file" required accept=".txt,.dat"></label>
+      <button type="submit">Apply layout</button>
+    </form>
+    <form id="queue-form" class="stack">
+      <h3>Message queue</h3>
+      <label>Event JSON<textarea id="queue-body" rows="4" required></textarea></label>
+      <button type="submit">Send message</button>
+    </form>
+    <button id="run-collection" type="button" class="secondary">Run scheduled collection</button>
+    <p id="import-result" role="status"></p>
+    <form id="alert-policy-form" class="stack">
+      <h3>Alert suppression</h3>
+      <label>Entity<input id="policy-entity" maxlength="120"></label>
+      <label>Title<input id="policy-title" maxlength="200"></label>
+      <label>Channel<input id="policy-channel" maxlength="80"></label>
+      <label>Kind<select id="policy-kind"><option value="suppress">Suppress this match</option><option value="whitelist">Whitelist the entity</option></select></label>
+      <button type="submit">Save suppression</button>
+    </form>
+    <form id="alert-route-form" class="stack">
+      <h3>In-app alert routing</h3>
+      <label>Channel<input id="route-channel" maxlength="80"></label>
+      <label>Minimum score<input id="route-score" type="number" min="0" max="1000" value="70" required></label>
+      <label>Assignee<input id="route-assignee" maxlength="120" required></label>
+      <label>Notice<select id="route-delivery"><option value="app">In the center</option><option value="email">Email outbox</option><option value="sms">SMS outbox</option><option value="mq">Queue outbox</option></select></label>
+      <button type="submit">Save route</button>
+    </form>
+    <p class="muted">A matching new alert is marked suppressed, or assigned here. The notice is stored in the center. Mail, SMS, and queues are not contacted.</p>
+    <h3>Open alerts</h3><div id="inbox-alerts" class="stack"></div>
+    <h3>Related alerts</h3><div id="alert-groups" class="stack"></div>
+    <h3>Recent imported events</h3><div id="import-events" class="stack"></div>
+    <button id="close-imports" type="button">Close</button>
+  </dialog>
+  <dialog id="setup-dialog">
+    <h2>Case setup</h2>
+    <form id="field-form" class="stack">
+      <h3>Case fields</h3>
+      <div id="field-list" class="stack"></div>
+      <label>Case type<select id="field-type"></select></label>
+      <label>Label<input id="field-label" required minlength="2" maxlength="80"></label>
+      <label>Key<input id="field-key" required maxlength="40" placeholder="callback_number"></label>
+      <label class="inline"><input id="field-required" type="checkbox"> Required</label>
+      <button type="submit">Add field</button>
+    </form>
+    <form id="route-form" class="stack">
+      <h3>Routing rules</h3>
+      <p class="muted">A blank assignee on a new case uses the closest matching rule. A rule for a specific type wins over a rule for every type.</p>
+      <div id="route-list" class="stack"></div>
+      <label>Name<input id="route-name" required minlength="3" maxlength="80"></label>
+      <div class="split">
+        <label>Type<select id="route-type"></select></label>
+        <label>Minimum risk<select id="route-risk"></select></label>
+      </div>
+      <label>Assignee<input id="route-assignee" required maxlength="120"></label>
+      <button type="submit">Add rule</button>
+    </form>
+    <h3>Review thresholds</h3>
+    <p class="muted">These numbers apply to the next import. Repeated login failures are counted inside one activity file.</p>
+    <div id="detection-list" class="stack"></div>
+    <button id="close-setup" type="button">Close</button>
+  </dialog>
+  <dialog id="process-dialog">
+    <h2>User activity</h2>
+    <p class="muted">Name a business process, define each screen by the text that identifies it, place the fields to capture, then add the screens in navigation order. A saved image reading and a submitted transcript are checked against these definitions.</p>
+    <form id="process-form" class="stack">
+      <h3>1. Business process</h3>
+      <label>Name<input id="process-name" required minlength="3" maxlength="80"></label>
+      <label>Description<input id="process-description" maxlength="500"></label>
+      <button type="submit">Add process</button>
+    </form>
+    <div id="process-list" class="stack"></div>
+    <form id="screen-form" class="stack">
+      <h3>2. Screen, markers, and fields</h3>
+      <label>Process<select id="process-choice"></select></label>
+      <label>Screen name<input id="screen-name" required minlength="3" maxlength="80"></label>
+      <div class="split">
+        <label>Identifying text<input id="marker-text" maxlength="80" placeholder="Transfer funds"></label>
+        <label>Line<input id="marker-line" type="number" min="0" max="200" value="0"></label>
+      </div>
+      <p class="muted">Line 0 means the text may appear on any line. Every marker must be present for the screen to match.</p>
+      <div class="split">
+        <label>Field name<input id="capture-name" maxlength="40" placeholder="account"></label>
+        <label>Label<input id="capture-label" maxlength="80" placeholder="Account"></label>
+      </div>
+      <div class="split">
+        <label>Field line<input id="capture-line" type="number" min="1" max="200" value="1"></label>
+        <label>Column<input id="capture-column" type="number" min="1" max="400" value="1"></label>
+        <label>Length<input id="capture-length" type="number" min="1" max="120" value="20"></label>
+        <label>Action
+          <select id="capture-action">
+            <option value="read">Read</option>
+            <option value="update">Update</option>
+            <option value="add">Add</option>
+            <option value="delete">Delete</option>
+          </select>
+        </label>
+      </div>
+      <div class="row-actions">
+        <button type="submit">Save screen and marker</button>
+        <button id="add-screen-field" type="button" class="secondary">Add field</button>
+        <button id="add-process-step" type="button" class="secondary">Add as next step</button>
+      </div>
+    </form>
+    <div id="screen-list" class="stack"></div>
+    <form id="navigation-form" class="stack">
+      <h3>3. Check a navigation</h3>
+      <label>Screen transcripts<textarea id="navigation-text" rows="8" placeholder="One screen, then a line with only ---, then the next screen"></textarea></label>
+      <button type="submit">Check navigation</button>
+    </form>
+    <h3>Audit trail</h3>
+    <div id="process-audit" class="stack"></div>
+    <h3>Field values</h3>
+    <div id="field-audit" class="stack"></div>
+    <button id="close-processes" type="button">Close</button>
+  </dialog>
+  <dialog id="analytics-dialog">
+    <h2>Analytic rules</h2>
+    <p class="muted">Activity imports, website visits, and screen readings become facts. A rule version aggregates those facts with sum, count, min, or max. Saving a fact checks enabled rules. Evaluate historic data reapplies every enabled version to facts already stored.</p>
+    <form id="entity-form" class="stack">
+      <h3>Business entity</h3>
+      <div class="split">
+        <label>Type<select id="entity-type"><option>user</option><option>account</option><option>customer</option><option>other</option></select></label>
+        <label>Reference<input id="entity-ref" required maxlength="120" placeholder="casey"></label>
+      </div>
+      <div class="split">
+        <label>Attribute<input id="entity-attribute" required maxlength="40" placeholder="executive"></label>
+        <label>Value<input id="entity-value" maxlength="80" placeholder="yes"></label>
+      </div>
+      <button type="submit">Save attribute</button>
+    </form>
+    <div id="entity-list" class="stack"></div>
+    <form id="rule-form" class="stack">
+      <h3>Rule version</h3>
+      <div class="split">
+        <label>Name<input id="rule-name" required minlength="3" maxlength="80"></label>
+        <label>Version<input id="rule-version" type="number" min="1" value="1"></label>
+      </div>
+      <label>Type
+        <select id="rule-kind">
+          <option value="aggregation">Aggregation</option>
+          <option value="what">What: list or account access</option>
+          <option value="how">How: search text</option>
+          <option value="when">When: outside hours</option>
+          <option value="where">Where: department</option>
+          <option value="time_correlation">Time: different terminals</option>
+          <option value="data_correlation">Data: shared beneficiary</option>
+          <option value="process">Process: ordered steps</option>
+        </select>
+      </label>
+      <div class="split">
+        <label>Entity<select id="rule-entity"><option>user</option><option>account</option><option>customer</option><option>other</option></select></label>
+        <label>Fact<input id="rule-fact" required maxlength="40" placeholder="bytes"></label>
+      </div>
+      <div class="split">
+        <label>Aggregation<select id="rule-aggregation"><option>sum</option><option>count</option><option>min</option><option>max</option></select></label>
+        <label>Compare<select id="rule-comparator"><option value="gte">at least</option><option value="lte">at most</option></select></label>
+        <label>Threshold<input id="rule-threshold" type="number" value="0"></label>
+        <label>Score<input id="rule-score" type="number" min="0" max="1000" value="70"></label>
+      </div>
+      <div class="split">
+        <label>Only when attribute<input id="rule-attribute" maxlength="40" placeholder="executive"></label>
+        <label>Equals<input id="rule-attribute-value" maxlength="80" placeholder="yes"></label>
+      </div>
+      <div class="split">
+        <label>List mode<select id="rule-list-mode"><option value="deny">Deny list</option><option value="allow">Allow list</option></select></label>
+        <label>List<input id="rule-list" maxlength="500" placeholder="ACC-1, ACC-2"></label>
+      </div>
+      <div class="split">
+        <label>Search text<input id="rule-pattern" maxlength="80" placeholder="transfer"></label>
+        <label>From hour<input id="rule-start-hour" type="number" min="0" max="23" value="8"></label>
+        <label>Until hour<input id="rule-end-hour" type="number" min="0" max="24" value="18"></label>
+      </div>
+      <label>Steps<input id="rule-steps" maxlength="200" placeholder="add, transfer, delete"></label>
+      <div class="row-actions">
+        <button type="submit">Save rule version</button>
+        <button id="test-rule" type="button" class="secondary">Test rule</button>
+      </div>
+    </form>
+    <div id="rule-list" class="stack"></div>
+    <label>Risk score threshold<input id="score-threshold" type="number" min="1" max="10000" value="100"></label>
+    <button id="save-score-threshold" type="button" class="secondary">Save score threshold</button>
+    <button id="evaluate-rules" type="button">Evaluate historic data</button>
+    <div id="score-history" class="stack"></div>
+    <h3>Behavior</h3>
+    <p class="muted">Ten built-in indicators average stored facts over the trailing 90 days. A user baseline is the mean and standard deviation of earlier periods. The latest period is a deviation when it sits above that band and the user already has activity in enough earlier periods.</p>
+    <label>User<input id="behavior-user" maxlength="120" placeholder="casey"></label>
+    <button id="show-behavior" type="button" class="secondary">Show behavior</button>
+    <div id="indicator-list" class="stack"></div>
+    <div id="baseline-list" class="stack"></div>
+    <form id="indicator-form" class="stack">
+      <h3>Additional indicator</h3>
+      <div class="split">
+        <label>Key<input id="indicator-key" required minlength="3" maxlength="40" placeholder="cash_count"></label>
+        <label>Label<input id="indicator-label" required minlength="3" maxlength="160"></label>
+      </div>
+      <div class="split">
+        <label>Fact<input id="indicator-fact" required maxlength="40"></label>
+        <label>Measure<select id="indicator-measure"><option>count</option><option>sum</option><option>distinct</option><option>revert</option></select></label>
+        <label>Period<select id="indicator-period"><option>day</option><option>week</option><option>month</option></select></label>
+      </div>
+      <button type="submit">Save indicator</button>
+    </form>
+    <div class="split">
+      <label>Standard deviations<input id="baseline-sigma" type="number" min="0.5" max="10" step="0.5" value="3"></label>
+      <label>Minimum active periods<input id="baseline-minimum" type="number" min="1" max="90" value="4"></label>
+    </div>
+    <button id="save-baseline" type="button" class="secondary">Save baseline settings</button>
+    <button id="refresh-baselines" type="button">Refresh baselines</button>
+    <form id="channel-form" class="stack">
+      <h3>Channel event</h3>
+      <div class="split">
+        <label>Channel<select id="channel-name"><option>phone</option><option>email</option><option>chat</option><option>system</option></select></label>
+        <label>Action<input id="channel-action" maxlength="40" placeholder="call"></label>
+        <label>Reference<input id="channel-reference" maxlength="120" placeholder="CALL-10"></label>
+      </div>
+      <label>When<input id="channel-time" type="datetime-local" required></label>
+      <button type="submit">Record channel event</button>
+    </form>
+    <div id="channel-view" class="stack"></div>
+    <p id="analytics-result" role="status"></p>
+    <button id="close-analytics" type="button">Close</button>
+  </dialog>
+  <dialog id="profiles-dialog">
+    <h2>Profiles</h2>
+    <p class="muted">A rising transfer trend opens a review alert. Workload, time use, and sentiment use facts already stored. A synthetic profile keeps indicator averages under a token. Library rules can be turned off or given a different threshold.</p>
+    <label>User<input id="profile-user" maxlength="120" placeholder="casey"></label>
+    <button id="show-profile" type="button" class="secondary">Show profile</button>
+    <button id="refresh-profile" type="button">Refresh profile</button>
+    <button id="build-twin" type="button" class="secondary">Build synthetic profile</button>
+    <div id="profile-summary" class="stack"></div>
+    <form id="outcome-form" class="stack">
+      <h3>Prediction outcome</h3>
+      <div class="split">
+        <label>Prediction<input id="prediction-id" type="number" min="1" required></label>
+        <label>Outcome<select id="prediction-outcome"><option>confirmed</option><option>dismissed</option></select></label>
+      </div>
+      <button type="submit">Save outcome</button>
+    </form>
+    <p id="accuracy-line" class="muted"></p>
+    <form id="library-form" class="stack">
+      <h3>Library rule</h3>
+      <div class="split">
+        <label>Key<input id="library-key" required maxlength="40"></label>
+        <label>Threshold<input id="library-threshold" type="number" min="0" value="0"></label>
+        <label>Score<input id="library-score" type="number" min="0" max="1000" value="70"></label>
+        <label>Enabled<select id="library-enabled"><option value="true">enabled</option><option value="false">disabled</option></select></label>
+      </div>
+      <button type="submit">Save library rule</button>
+    </form>
+    <button id="update-library" type="button" class="secondary">Update library</button>
+    <div id="library-list" class="stack"></div>
+    <p id="profile-result" role="status"></p>
+    <button id="close-profiles" type="button">Close</button>
+  </dialog>
+  <dialog id="dlp-dialog">
+    <h2>DLP review</h2>
+    <p class="muted">Submitted text, device names, cloud hosts, file changes, permission changes, print jobs, screenshot attempts, and command logs are reviewed. A match opens a review alert. The action recorded here is review.</p>
+    <form id="dlp-text-form" class="stack">
+      <label>User<input id="dlp-user" maxlength="120" placeholder="casey"></label>
+      <label>Text<textarea id="dlp-text" rows="4" required maxlength="100000"></textarea></label>
+      <button type="submit">Review text</button>
+    </form>
+    <form id="dlp-policy-form" class="stack">
+      <h3>Policy</h3>
+      <div class="split">
+        <label>Minimum matches<input id="dlp-min" type="number" min="1" max="20" value="1"></label>
+        <label>Score<input id="dlp-score" type="number" min="0" max="1000" value="70"></label>
+      </div>
+      <label>Intellectual property terms<input id="dlp-ip" maxlength="300"></label>
+      <label>Customer terms<input id="dlp-customer" maxlength="300"></label>
+      <label>Financial terms<input id="dlp-financial" maxlength="300"></label>
+      <button type="submit">Save policy</button>
+    </form>
+    <form id="dlp-usb-form" class="stack">
+      <h3>USB allow list</h3>
+      <div class="split">
+        <label>Serial<input id="usb-serial" required maxlength="80"></label>
+        <label>Label<input id="usb-label" maxlength="80"></label>
+      </div>
+      <button type="submit">Allow device</button>
+    </form>
+    <form id="dlp-print-form" class="stack">
+      <h3>Print job</h3>
+      <div class="split">
+        <label>User<input id="print-user" required maxlength="120"></label>
+        <label>Printer<input id="print-printer" required maxlength="120"></label>
+      </div>
+      <label>Document title<input id="print-document" required maxlength="200"></label>
+      <div class="split">
+        <label>Pages<input id="print-pages" type="number" min="0" max="100000" value="1" required></label>
+        <label>Size in bytes<input id="print-size" type="number" min="0" value="0" required></label>
+      </div>
+      <button type="submit">Record print job</button>
+    </form>
+    <form id="dlp-screenshot-form" class="stack">
+      <h3>Screenshot attempt</h3>
+      <div class="split">
+        <label>User<input id="screenshot-user" required maxlength="120"></label>
+        <label>Application<input id="screenshot-application" required maxlength="120"></label>
+      </div>
+      <button type="submit">Record attempt</button>
+    </form>
+    <form id="dlp-cloud-form" class="stack">
+      <h3>Cloud allow list</h3>
+      <label>Host<input id="cloud-host" required maxlength="120" placeholder="drive.google.com"></label>
+      <button type="submit">Allow host</button>
+    </form>
+    <div id="dlp-audit" class="stack"></div>
+    <p id="dlp-result" role="status"></p>
+    <button id="close-dlp" type="button">Close</button>
+  </dialog>
+  <dialog id="automation-dialog">
+    <h2>Response</h2>
+    <p class="muted">A playbook can notify someone, record an email or SMS message, open a custom ticket, and open an incident. Messages stay in this center. A trigger can be confirmed here.</p>
+    <form id="playbook-form" class="stack">
+      <div class="split">
+        <label>Name<input id="playbook-name" required minlength="3" maxlength="80"></label>
+        <label>Trigger
+          <select id="playbook-trigger">
+            <option>dlp</option><option>download</option><option>upload</option><option>email</option><option>print</option><option>other</option>
+          </select>
+        </label>
+      </div>
+      <label>Steps<input id="playbook-steps" required maxlength="120" placeholder="notify, ticket, incident"></label>
+      <button type="submit">Save playbook</button>
+    </form>
+    <form id="notice-form" class="stack">
+      <label>Notify user<input id="notice-user" required maxlength="120"></label>
+      <label>Message<input id="notice-message" required maxlength="500"></label>
+      <button type="submit">Send notice</button>
+    </form>
+    <form id="trigger-form" class="stack">
+      <label>Trigger name<input id="trigger-name" required minlength="3" maxlength="80"></label>
+      <button type="submit">Record trigger</button>
+    </form>
+    <div id="playbook-list" class="stack"></div>
+    <div id="notice-list" class="stack"></div>
+    <p id="automation-result" role="status"></p>
+    <button id="close-automation" type="button">Close</button>
+  </dialog>
+  <dialog id="links-dialog">
+    <h2>Link analysis</h2>
+    <form id="links-form" class="filters">
+      <label>Entity type
+        <select id="link-type"><option value="">Any</option></select>
+      </label>
+      <label>Anchor reference
+        <input id="link-ref" maxlength="120" placeholder="EMP-1044">
+      </label>
+      <label>Depth
+        <select id="link-depth">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+        </select>
+      </label>
+      <label>From<input id="link-start" type="date"></label>
+      <label>To<input id="link-end" type="date"></label>
+      <button type="submit">Show links</button>
+    </form>
+    <div class="row-actions">
+      <button id="zoom-out" type="button" class="secondary">Zoom out</button>
+      <button id="zoom-in" type="button" class="secondary">Zoom in</button>
+    </div>
+    <p class="muted">Red marks an entity recorded as fraudulent. Amber marks an entity on an open case. Select an entity to center the graph or open one of its cases.</p>
+    <div id="link-canvas"></div>
+    <div id="link-focus" class="stack"></div>
+    <button id="close-links" type="button">Close</button>
+  </dialog>
+  <dialog id="network-dialog">
+    <h2>Network captures</h2>
+    <p>Review a PCAP or timestamped PCAPNG from a sensor, mirror port, or tap. Live capture runs separately on the sensor computer.</p>
+    <form id="network-form" class="stack">
+      <label>Capture file<input id="network-file" type="file" accept=".pcap,.pcapng,.cap" required></label>
+      <label>Protocols to monitor<select id="network-protocols" multiple size="6"></select></label>
+<label>Malware IP addresses (comma separated)<input id="network-malware" maxlength="3000"></label>
+<label>C2 IP addresses (comma separated)<input id="network-c2" maxlength="3000"></label>
+      <p class="muted">Select protocols. Identification is not full content decoding; see coverage below.</p>
+      <button type="submit">Analyze capture</button>
+    </form>
+    <p id="network-result" role="status"></p>
+    <h3>Recent captures</h3><div id="network-captures" class="stack"></div>
+    <form id="message-search-form" class="filters">
+      <label>Message text<input id="message-q" maxlength="80" placeholder="Field value or message type"></label>
+      <button type="submit" class="secondary">Search messages</button>
+    </form>
+    <div id="message-hits" class="stack"></div>
+    <form id="command-search-form" class="filters">
+      <label>Reconstructed command<input id="command-q" maxlength="80" placeholder="Stored command text"></label>
+      <button type="submit" class="secondary">Search commands</button>
+    </form>
+    <div id="command-hits" class="stack"></div>
+    <form id="finding-search-form" class="filters">
+      <label>Stored finding<select id="finding-tactic">
+        <option value="exfiltration">Data exfiltration</option>
+        <option value="privilege">Privilege escalation</option>
+        <option value="command-and-control">Command and control</option>
+        <option value="ioc">Operator-supplied address</option>
+        <option value="impact">Impact</option>
+        <option value="discovery">Discovery</option>
+        <option value="persistence">Persistence</option>
+        <option value="lateral-movement">Lateral movement</option>
+        <option value="collection">Collection</option>
+        <option value="protocol-anomaly">Protocol anomaly</option>
+        <option value="ttp">Any stored tactic</option>
+      </select></label>
+      <button type="submit" class="secondary">Search findings</button>
+    </form>
+    <div id="finding-hits" class="stack"></div>
+    <form id="file-search-form" class="filters">
+      <label>Reconstructed file<input id="file-q" maxlength="80" placeholder="Protocol, name, or hash"></label>
+      <button type="submit" class="secondary">Search files</button>
+    </form>
+    <div id="file-hits" class="stack"></div>
+    <form id="session-search-form" class="filters">
+      <label>Reconstructed session<input id="session-q" maxlength="80" placeholder="Protocol or address"></label>
+      <button type="submit" class="secondary">Search sessions</button>
+    </form>
+    <div id="session-hits" class="stack"></div>
+    <h3>Sessions and decoded messages</h3><div id="network-sessions" class="stack"></div>
+    <details><summary>Decoder coverage</summary><div id="network-coverage"></div></details>
+    <details><summary>Import a fixed-width message layout</summary>
+      <form id="layout-form" class="stack">
+        <label>Language<select id="layout-language"><option value="cobol">COBOL DISPLAY subset</option><option value="c">C fixed-width packed subset</option><option value="vb">VB fixed single-byte strings</option></select></label>
+        <label>Layout declarations<textarea id="layout-text" rows="5" maxlength="65536" required></textarea></label>
+        <label>Optional message in Base64<textarea id="layout-data" rows="2" maxlength="90000"></textarea></label>
+        <label>Text encoding<select id="layout-encoding"><option value="ascii">ASCII</option><option value="cp037">EBCDIC CP037</option><option value="latin-1">Latin-1</option></select></label>
+        <label>Integer byte order<select id="layout-order"><option value="big">Big endian</option><option value="little">Little endian</option></select></label>
+        <button type="submit">Preview layout</button>
+        <h4>Save for automatic decoding</h4>
+        <label>Layout name<input id="layout-name" maxlength="80"></label>
+        <label>Version<input id="layout-version" type="number" value="1" min="1" max="1000000"></label>
+        <label>Protocol<select id="layout-protocol"></select></label>
+        <label>Direction<select id="layout-direction"><option value="both">Both endpoints</option><option value="0">Endpoint 0 (sorted address/port)</option><option value="1">Endpoint 1 (sorted address/port)</option></select></label>
+        <label>Bytes to skip at stream start<input id="layout-offset" type="number" value="0" min="0" max="65535"></label>
+        <label>Identifying field<input id="layout-identify" maxlength="80" placeholder="Message type field name"></label>
+        <label>Record framing
+          <select id="layout-framing">
+            <option value="fixed">Fixed size</option>
+            <option value="length_prefix">Length prefix</option>
+          </select>
+        </label>
+        <label>Prefix width
+          <select id="layout-length-width">
+            <option value="2">2 bytes</option>
+            <option value="4">4 bytes</option>
+          </select>
+        </label>
+        <label>Envelope bytes<input id="layout-envelope" type="number" value="0" min="0" max="32"></label>
+        <p>Applies repeated fixed-size records to complete TCP streams only. Match the layout and offset to your application's framing.</p>
+        <button id="save-layout" type="button">Save layout version</button>
+      </form>
+      <pre id="layout-result"></pre>
+      <h4>Saved layout versions</h4><div id="saved-layouts" class="stack"></div>
+    </details>
+    <button id="close-network" type="button">Close</button>
+  </dialog>
+  <dialog id="agents-dialog">
+    <h2>Endpoint agents</h2>
+    <form class="filters">
+      <label>Search<input id="agents-search" type="search" placeholder="hostname, OS, group, tags"></label>
+      <label>Status<select id="agents-status"><option value="">Any</option><option>active</option><option>stale</option><option>suspended</option></select></label>
+      <label>Group<select id="agents-group"><option value="">Any</option></select></select>
+      <button type="button" id="agents-refresh" class="secondary">Refresh</button>
+    </form>
+    <p class="muted">Active agents check in within the stale threshold; stale agents may be off-network or unreachable; suspended agents are denied API access.</p>
+    <div id="agents-list" class="stack"></div>
+    <h3>Groups</h3>
+    <form id="agent-group-form" class="filters">
+      <label>Name<input id="agent-group-name" required maxlength="80" placeholder="Investigators"></label>
+      <label>Description<input id="agent-group-desc" maxlength="200"></label>
+      <button type="submit">Create group</button>
+    </form>
+    <div id="agent-groups-list" class="stack"></div>
+    <h3>Selected agent</h3>
+    <div id="agent-detail" class="stack">
+      <p class="muted">Pick an agent above to view events, push a configuration, send a screenshot command, or revoke the token.</p>
+    </div>
+    <button id="close-agents" type="button">Close</button>
+  </dialog>
+  <dialog id="endpoint-events-dialog">
+    <h2>Endpoint events</h2>
+    <form class="filters">
+      <label>Agent<select id="ee-agent"><option value="">Any</option></select></label>
+      <label>Type<select id="ee-type"><option value="">Any</option></select></label>
+      <label>Severity<select id="ee-severity"><option value="">Any</option><option>low</option><option>medium</option><option>high</option><option>critical</option></select></label>
+      <label>From<input id="ee-from" type="datetime-local"></label>
+      <label>To<input id="ee-to" type="datetime-local"></label>
+      <label>Q<input id="ee-q" type="search" placeholder="search text in payload"></label>
+      <button type="button" id="ee-search" class="secondary">Search</button>
+    </form>
+    <div class="row-actions">
+      <button type="button" id="ee-link-selected">Link selected to case…</button>
+      <button type="button" id="ee-clear-selection" class="secondary">Clear selection</button>
+      <span id="ee-selected-count" class="muted"></span>
+    </div>
+    <div id="endpoint-events-list" class="stack"></div>
+    <button id="close-endpoint-events" type="button">Close</button>
+  </dialog>
+  <dialog id="search-dialog" aria-labelledby="search-heading">
+    <h2 id="search-heading">Search captured content</h2>
+    <p>Search across platforms. Use quotes for phrases, OR for alternatives, and a minus sign to exclude a term.</p>
+    <form id="content-search-form" class="stack">
+      <label>Search terms<input id="content-query" type="search" maxlength="500" required placeholder='"wire transfer" -denied'></label>
+      <div class="split">
+        <label>Platform<select id="content-platform"><option value="">All platforms</option></select></label>
+        <label>Source<select id="content-source"><option value="">All sources</option></select></label>
+      </div>
+      <div class="split">
+        <label>From (your local time)<input id="content-start" type="datetime-local" step="1"></label>
+        <label>To (your local time)<input id="content-end" type="datetime-local" step="1"></label>
+      </div>
+      <button type="submit">Search</button>
+    </form>
+    <p id="content-index-status" role="status"></p>
+    <button id="content-backfill" type="button" class="secondary">Index existing records</button>
+    <p id="content-result-status" role="status"></p>
+    <div id="content-results" class="stack"></div>
+    <div class="top-actions">
+      <button id="content-previous" type="button" class="secondary" disabled>Previous</button>
+      <button id="content-next" type="button" class="secondary" disabled>Next</button>
+    </div>
+    <section id="content-detail" aria-live="polite"></section>
+    <details id="content-import-section">
+      <summary>Add a webpage or screen snapshot</summary>
+      <p>Paste supplied HTML or already reconstructed screen text. Screenshot OCR and encrypted webpage decoding are separate features.</p>
+      <form id="content-import-form" class="stack">
+        <div class="split">
+          <label>Content type<select id="content-kind"><option value="html">Webpage HTML</option><option value="screen">Screen text</option></select></label>
+          <label>Platform<select id="content-import-platform"><option value="web">Web</option><option value="windows">Windows</option><option value="linux">Linux</option><option value="macos">macOS</option><option value="mainframe">Mainframe</option><option value="iseries">iSeries</option><option value="terminal">Terminal</option></select></label>
+        </div>
+        <label>Title (optional)<input id="content-title" maxlength="200"></label>
+        <label>Observed at (your local time)<input id="content-observed" type="datetime-local" step="1" required></label>
+        <label>Text or HTML<textarea id="content-text" rows="8" maxlength="262144" required></textarea></label>
+        <button type="submit">Add to search</button>
+        <p id="content-import-status" role="status"></p>
+      </form>
+    </details>
+    <button id="close-search" type="button">Close</button>
+  </dialog>
+  <dialog id="replay-dialog" aria-labelledby="replay-heading">
+    <h2 id="replay-heading">Session replay</h2>
+    <div class="toolbar"><select id="replay-session-list" aria-label="Recorded session"></select><button id="replay-load" type="button">Open session</button><button id="replay-refresh" type="button">Refresh list</button></div>
+    <p id="replay-status" role="status"></p>
+    <div class="toolbar"><button id="replay-previous" type="button">Previous screen</button><button id="replay-next" type="button">Next screen</button><label><input id="replay-original" type="checkbox" checked> Original display when available</label></div>
+    <div id="replay-view"></div><div id="replay-changes"></div>
+    <details id="replay-import-section"><summary>Add a recorded screen</summary>
+      <form id="replay-import-form" class="stack">
+        <label>Session title<input id="replay-title" required maxlength="200"></label>
+        <label>Platform<select id="replay-platform"><option value="mainframe">Mainframe</option><option value="web">Web</option><option value="client-server">Client-server</option></select></label>
+        <label>Screen text or original webpage HTML<textarea id="replay-content" rows="6" maxlength="262144" required></textarea></label>
+        <label>Fields as JSON (optional)<textarea id="replay-fields" rows="3" placeholder='{"Account":"123"}'></textarea></label>
+        <label><input id="replay-is-html" type="checkbox"> This is webpage HTML</label>
+        <button type="submit">Append screen</button><p>Creates a new session when the selected session title changes. Screen timestamps use the current time; use the API to supply historical timestamps.</p>
+      </form>
+    </details><button id="replay-close" type="button">Close</button>
+  </dialog>
+  <dialog id="response-dialog" aria-labelledby="response-heading">
+    <h2 id="response-heading">Endpoint response</h2>
+    <p>Actions require administrator access and local agent opt-in. Desktop viewing and control require consent on the endpoint and record the session. Isolation preserves configured management IP exceptions. Rollback restores captured files in configured folders.</p>
+    <label>Endpoint<select id="response-agent"></select></label><label>Reason<input id="response-reason" maxlength="500" minlength="3" placeholder="Reason for this action"></label>
+    <div id="response-actions" class="toolbar">
+      <button type="button" data-action="process_list">List processes</button><button type="button" data-action="live_start" data-mode="view">View live desktop</button><button type="button" data-action="live_start" data-mode="control">Request desktop control</button>
+      <button type="button" data-action="isolate">Isolate network</button><button type="button" data-action="release">Release isolation</button><button type="button" data-action="isolation_status">Check isolation</button><button type="button" data-action="snapshot">Create file rollback point</button><button type="button" data-action="snapshot" data-scope="windows_system">Create Windows system restore point</button>
+    </div>
+    <p id="response-status" role="status"></p>
+    <section id="response-live" hidden><h3>Live desktop</h3><p id="response-live-status"></p><img id="response-desktop" alt="Live endpoint desktop" hidden><p>In control mode, click the image to click the endpoint. Move the endpoint mouse to a screen corner or use its Stop button to end input.</p>
+      <form id="response-input" class="toolbar"><input id="response-text" maxlength="1000" placeholder="Text to type (printable characters)"><button type="submit">Type text</button><select id="response-key"><option>enter</option><option>esc</option><option>tab</option><option>backspace</option><option>up</option><option>down</option><option>left</option><option>right</option></select><button id="response-send-key" type="button">Press key</button><button id="response-scroll-up" type="button">Scroll up</button><button id="response-scroll-down" type="button">Scroll down</button></form>
+      <button id="response-stop" type="button">Stop desktop session</button>
+    </section>
+    <button id="response-refresh" type="button">Refresh results</button><div id="response-results"></div>
+    <details><summary>Audit trail</summary><div id="response-audit"></div></details>
+    <button id="response-close" type="button">Close</button>
+  </dialog>
+  <dialog id="mail-dialog" aria-labelledby="mail-heading">
+    <h2 id="mail-heading">Email capture and review</h2>
+    <p>Review messages from configured Outlook, Thunderbird and browser collectors, or add an exported email. Findings identify content and recipient domains that need review.</p>
+    <p class="muted">A browser send action records intent. A cloud-folder or removable-drive write does not confirm that someone received the data.</p>
+    <details id="mail-import-section">
+      <summary>Add an exported email</summary>
+      <form id="mail-import-form" class="stack">
+        <label>Email file<input id="mail-eml-file" type="file" accept=".eml,message/rfc822"></label>
+        <label>Or paste the original message<textarea id="mail-eml-text" rows="6" maxlength="262144" placeholder="From: sender@example.com&#10;To: recipient@example.com&#10;Subject: Review&#10;&#10;Message body"></textarea></label>
+        <label>Direction<select id="mail-direction"><option value="unknown">Unknown</option><option value="outgoing">Outgoing</option><option value="incoming">Incoming</option></select></label>
+        <button type="submit">Capture and analyze</button><p id="mail-import-result" role="status"></p>
+      </form>
+    </details>
+    <details id="mail-policy-section">
+      <summary>Recipient and content policy</summary>
+      <form id="mail-policy-form" class="stack">
+        <label>Internal recipient domains (one per line)<textarea id="mail-internal-domains" rows="3" maxlength="10000"></textarea></label>
+        <label>Sensitive terms (one per line)<textarea id="mail-sensitive-terms" rows="4" maxlength="10000"></textarea></label>
+        <p>Internal domains include their subdomains. With no internal domains configured, known public mail services are identified and other domains remain unclassified. Changes apply to future captures.</p>
+        <button type="submit">Save policy</button>
+      </form>
+    </details>
+    <button id="mail-refresh" type="button" class="secondary">Refresh messages</button>
+    <div id="mail-messages" class="stack"></div>
+    <section id="mail-detail" aria-live="polite"></section>
+    <button id="close-mail" type="button">Close</button>
+  </dialog>
+  <dialog id="privacy-dialog">
+    <h2>Privacy controls</h2><p>These controls support your privacy program. Pseudonyms remain personal data. Restricted screenshots and recordings cover every pixel and all text.</p>
+    <form id="privacy-form" class="stack">
+      <label><input id="privacy-enabled" type="checkbox"> Enable privacy mode</label>
+      <label>Processing purpose<input id="privacy-purpose" maxlength="500"></label>
+      <label>Legal basis<select id="privacy-basis"><option value="">Select</option><option value="consent">Consent</option><option value="legal_obligation">Legal obligation</option><option value="legitimate_interest">Legitimate interest</option><option value="public_interest">Public interest</option><option value="contract">Contract</option><option value="vital_interest">Vital interest</option></select></label>
+      <label><input id="privacy-consent" type="checkbox" checked> Require endpoint consent for visual uploads</label>
+      <label><input id="privacy-council" type="checkbox"> Require works council approval</label>
+      <label>Agreement reference<input id="privacy-reference" maxlength="500"></label>
+      <label>Approval expiry<input id="privacy-expiry" type="datetime-local"></label>
+      <label>Retention days<input id="privacy-days" type="number" min="1" max="3650" value="30" required></label>
+      <label><input id="privacy-auto" type="checkbox"> Automatically expire unlinked endpoint payloads and recorded replay content</label>
+      <p>Linked events, live recordings, other evidence, and audit records are preserved. Expiry permanently removes content from this application; external copies require separate retention controls.</p>
+      <button type="submit">Save privacy settings</button>
+    </form>
+    <label id="privacy-raw-label"><input id="privacy-raw" type="checkbox"> Enable audited administrator raw access for this browser session</label>
+    <div id="privacy-admin-actions"><button id="privacy-preview" type="button">Preview retention</button><button id="privacy-apply" type="button" disabled>Apply retention</button><button id="privacy-audit-open" type="button">View consent and audit records</button></div>
+    <p id="privacy-result" role="status"></p><div id="privacy-records"></div><div id="privacy-media"></div><div id="privacy-preview-media"></div>
+    <button type="button" onclick="this.closest('dialog').close()">Close</button>
+  </dialog>
+  <dialog id="education-dialog">
+    <h2>Policy education</h2>
+    <form id="education-form" class="stack">
+      <label><input id="education-enabled" type="checkbox" checked> Enable endpoint warnings</label>
+      <label>Warning title<input id="education-title" maxlength="160" required></label>
+      <label>Warning message<textarea id="education-message" maxlength="2000" required></textarea></label>
+      <label>Educational guidance<textarea id="education-guidance" maxlength="2000"></textarea></label>
+      <label>Training link (HTTPS)<input id="education-training" maxlength="500"></label>
+      <label>Manager application username<input id="education-manager" maxlength="120"></label>
+      <label>Warnings per escalation level<input id="education-escalate" type="number" min="1" max="100" value="3" required></label>
+      <label>Repeat unacknowledged warnings after minutes<input id="education-minutes" type="number" min="1" max="10080" value="60" required></label>
+      <button type="submit">Save notification policy</button>
+    </form>
+    <form id="education-reminder" class="row-actions"><label>Endpoint ID<input id="education-agent" type="number" min="1" required></label><button type="submit">Send policy reminder</button></form>
+    <p>Warnings follow new endpoint policy findings and are offered at the next endpoint poll. An interactive desktop is required for a popup. Training completion is self-reported through the endpoint API; the link supports your training provider.</p>
+    <div id="education-inbox"></div><div id="education-warnings"></div><div id="education-audit"></div>
+    <button type="button" onclick="this.closest('dialog').close()">Close</button>
+  </dialog>
+  <dialog id="applications-dialog">
+    <h2>Application names</h2>
+    <p>A stored endpoint event whose process name or window title contains the pattern opens one review alert. Saving a name does not start a capture.</p>
+    <form id="application-form" class="stack">
+      <label>Name<input id="application-name" maxlength="80" required></label>
+      <label>Match<select id="application-field"><option value="process">Process name</option><option value="window">Window title</option></select></label>
+      <label>Pattern<input id="application-pattern" minlength="2" maxlength="80" required></label>
+      <label>Score<input id="application-score" type="number" min="1" max="100" value="40" required></label>
+      <button type="submit">Save application</button>
+    </form>
+    <div id="application-rules"></div>
+    <button type="button" onclick="this.closest('dialog').close()">Close</button>
+  </dialog>
+  <dialog id="compliance-dialog">
+    <h2>Compliance records</h2>
+    <p class="muted">These records cover data already stored in the Investigation Center. They are not a GDPR, HIPAA, PCI, SOC 2, or FINRA certification.</p>
+    <form id="compliance-request" class="stack">
+      <label>Entity reference<input id="compliance-entity" maxlength="120" required></label>
+      <label>Request<select id="compliance-kind"><option value="access">Access</option><option value="portability">Portability</option><option value="erasure">Erasure</option><option value="opt_out">Opt-out</option></select></label>
+      <label>Regime<select id="compliance-regime"><option value="gdpr">GDPR</option><option value="ccpa">CCPA</option><option value="other">Other</option></select></label>
+      <button type="submit">Record request</button>
+    </form>
+    <form id="compliance-review" class="stack">
+      <label>Text to review<textarea id="compliance-text" maxlength="20000" required></textarea></label>
+      <button type="submit">Review for SSN, record numbers, and card numbers</button>
+    </form>
+    <form id="compliance-retention" class="row-actions">
+      <label>Online fact retention (months)<input id="compliance-months" type="number" min="6" max="12" value="6" required></label>
+      <button type="submit">Save retention</button>
+      <button id="compliance-age" type="button" class="secondary">Archive aged facts</button>
+    </form>
+    <pre id="compliance-result"></pre>
+    <button type="button" onclick="this.closest('dialog').close()">Close</button>
+  </dialog>
+  <p id="toast" role="status" hidden></p>
+  <script src="/static/app.js"></script>
+  <script src="/static/network.js"></script>
+  <script src="/static/network-search.js"></script>
+  <script src="/static/search.js"></script>
+  <script src="/static/mail.js"></script>
+  <script src="/static/replay-response.js"></script>
+  <script src="/static/privacy-education.js"></script>
+  <dialog id="phase3-dialog">
+    <h2>Live analytics and behavioral biometrics</h2>
+    <p>Live observations evaluate analytic rules, baselines, and library rules on arrival. The library contains 170 behavioral measures and 328 prebuilt rules, including first-party definitions over 80 signals. A measure with no observations has missing coverage.</p>
+    <p>Biometric signals compare aggregate typing and mouse movement with a trusted baseline. A consistent sample supports review of identity; a deviation may reflect device, accessibility or task changes. It does not prove identity, account takeover or credential sharing.</p>
+    <div id="biometric-summary"></div>
+    <section id="biometric-admin">
+      <form id="biometric-binding-form" class="stack"><h3>Bind an enrolled endpoint to a subject</h3><label>Endpoint ID<input id="biometric-agent" type="number" min="1" required></label><label>Subject reference<input id="biometric-subject" maxlength="120" required></label><label><input id="biometric-enabled" type="checkbox" checked> Enable binding</label><button type="submit">Save binding</button></form>
+      <p>The endpoint user must separately grant consent, and the biometrics collector must be enabled locally. Capture remains off by default.</p>
+      <button id="biometric-samples-refresh" type="button">Review collected samples</button><div id="biometric-samples"></div>
+      <form id="biometric-enroll-form" class="stack"><h3>Enroll a trusted baseline</h3><label>Trusted sample IDs, comma separated<input id="biometric-ids" required></label><label>Deviation threshold<input id="biometric-threshold" type="number" min="1" max="10" step="0.1" value="3" required></label><label><input id="biometric-trust" type="checkbox" required> I confirmed these samples belong to the subject using independent authentication</label><button type="submit">Enroll baseline</button></form>
+    </section>
+    <form id="synthetic-cohort-form" class="stack"><h3>Privacy-protected aggregate analytics</h3><label>At least five registered subject references, one per line<textarea id="synthetic-subjects" rows="5" required></textarea></label><p>Counts are clipped and noisy. One cached cohort release is permitted per UTC day, reducing repeated-query exposure. Privacy guarantees depend on the stated assumptions and compose across days; organizational legal review remains required.</p><button type="submit">Generate aggregate release</button></form><div id="synthetic-cohort-result"></div>
+    <p id="phase3-result" role="status"></p><button type="button" onclick="this.closest('dialog').close()">Close</button>
+  </dialog>
+  <script src="/static/phase3.js"></script>
+  <script src="/static/compliance.js"></script>
+  <dialog id="report-builder-dialog">
+    <h2>Reporting and field drilldown</h2>
+    <p>Choose output fields and input conditions. Select a result value to inspect its source.</p>
+    <label>Saved definition<select id="rb-saved"><option value="">Choose a definition</option></select></label>
+    <button id="rb-load" type="button">Load definition</button>
+    <button id="rb-delete" type="button">Delete definition</button>
+    <label>Output fields<select id="rb-columns" multiple size="8"></select></label>
+    <label>Match<select id="rb-match"><option value="all">All conditions</option><option value="any">Any condition</option></select></label>
+    <div id="rb-filters" class="stack"></div>
+    <button id="rb-add" type="button">Add condition</button>
+    <button id="rb-preview" type="button">Run report</button>
+    <button id="rb-sql" type="button">Run SQL status summary</button>
+    <label id="rb-name-label">Definition name<input id="rb-name" maxlength="80"></label>
+    <button id="rb-save" type="button">Save definition</button>
+    <div id="rb-integration"></div>
+    <p id="rb-status" role="status"></p>
+    <div id="rb-results" style="overflow:auto;max-height:45vh"></div>
+    <button id="rb-next" type="button" hidden>Next page</button>
+    <pre id="rb-drilldown" style="white-space:pre-wrap"></pre>
+    <button type="button" onclick="this.closest('dialog').close()">Close</button>
+  </dialog>
+  <script src="/static/report-builder.js"></script>
+  <dialog id="iam-dialog">
+    <h2>Identity and access</h2><p id="iam-status"></p>
+    <h3>Enroll a second factor</h3>
+    <p>Confirm enrollment with a code from your authenticator, OATH hardware token, or phone. Replacing a factor requires your existing factor.</p>
+    <form id="iam-enroll" class="stack">
+      <label>Current password<input id="iam-password" type="password" required></label>
+      <label>Existing factor code, when enrolled<input id="iam-old-code" maxlength="6" autocomplete="one-time-code"></label>
+      <label>Existing SMS challenge ID, when applicable<input id="iam-old-challenge"></label>
+      <label>Method<select id="iam-kind"><option value="totp">Authenticator (TOTP)</option><option value="hotp">OATH hardware token (HOTP)</option><option value="sms">SMS</option></select></label>
+      <label>Hardware Base32 secret (HOTP only)<input id="iam-hardware" type="password"></label>
+      <label>Next hardware counter<input id="iam-counter" type="number" min="0" value="0"></label>
+      <label>Phone (SMS only)<input id="iam-phone" placeholder="+27123456789"></label>
+      <button type="submit">Start enrollment</button>
+    </form>
+    <pre id="iam-enrollment" style="white-space:pre-wrap"></pre>
+    <form id="iam-confirm"><label>New factor code<input id="iam-confirm-code" required maxlength="6" autocomplete="one-time-code"></label><button>Confirm factor</button></form>
+    <h3>Privileged access</h3><p>Approval is limited to a named resource and expiry. Application activity is recorded as request metadata. Native terminal/video recording requires the endpoint recorder.</p>
+    <form id="iam-request"><label>Resource<input id="iam-resource" required maxlength="120" placeholder="linux:production:ssh"></label><label>Reason<input id="iam-reason" required minlength="10" maxlength="500"></label><button>Request access</button></form>
+    <div id="iam-requests"></div><pre id="iam-ticket"></pre>
+    <h3>Active sessions</h3><div id="iam-sessions"></div>
+    <section id="iam-admin"><h3>Account policies</h3><pre id="iam-accounts"></pre>
+      <form id="iam-policy" class="stack"><label>Account ID<input id="iam-account" type="number" min="1" required></label><label><input id="iam-shared" type="checkbox"> Shared account</label><label>Personal member IDs, comma separated<input id="iam-members"></label><label><input id="iam-required" type="checkbox"> Require enrolled MFA</label><label>Allowed data areas, comma separated (* for all)<input id="iam-modules" value="*"></label><button>Save access policy and revoke sessions</button></form>
+      <button id="iam-sync" type="button">Synchronize configured Active Directory</button>
+      <label>New role for selected account<select id="iam-role"><option value="viewer">Viewer</option><option value="investigator">Investigator</option><option value="administrator">Administrator</option></select></label><button id="iam-role-save" type="button">Change role and revoke sessions</button>
+      <label>Permitted login start hour (UTC)<input id="iam-hour-start" type="number" min="0" max="23" value="0"></label><label>End hour (UTC)<input id="iam-hour-end" type="number" min="0" max="24" value="24"></label><button id="iam-hours-save" type="button">Save login-hour alert window</button>
+      <button id="iam-reset-factor" type="button">Reset selected account’s factor</button>
+      <button id="iam-audit-open" type="button">Review identity audit</button><pre id="iam-audit"></pre>
+    </section>
+    <button type="button" id="iam-close">Close</button>
+  </dialog>
+  <script src="/static/iam.js"></script>
+</body>
+</html>

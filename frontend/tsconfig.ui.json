@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "rootDir": "../ui", "outDir": "../backend/app/static" },
+  "include": ["../ui/**/*.ts"]
+}

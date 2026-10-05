@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "ZANAQ Endpoint Mail and Download Capture",
+  "version": "0.1.0",
+  "description": "Capture supported visible webmail and completed downloads through the configured endpoint agent.",
+  "permissions": ["nativeMessaging", "downloads", "storage", "activeTab", "alarms"],
+  "host_permissions": ["https://mail.google.com/*", "https://outlook.office.com/*", "https://outlook.office365.com/*", "https://outlook.live.com/*"],
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [{"matches": ["https://mail.google.com/*", "https://outlook.office.com/*", "https://outlook.office365.com/*", "https://outlook.live.com/*"], "js": ["content.js"]}],
+  "action": {"default_popup": "popup.html", "default_title": "Capture visible mail"}
+}

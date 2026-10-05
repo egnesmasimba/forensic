@@ -1,0 +1,31 @@
+{
+  "server_url": "https://YOUR_MANAGEMENT_SERVER:8000",
+  "agent_token": "REGISTERED_AGENT_TOKEN",
+  "offline_queue_path": "state/events.jsonl",
+  "response": {
+    "enabled": false,
+    "state_dir": "state/response",
+    "allowed_actions": [
+      "process_list",
+      "process_terminate",
+      "isolate",
+      "release",
+      "isolation_status",
+      "snapshot",
+      "rollback",
+      "verify_rollback",
+      "live_start",
+      "live_stop",
+      "control_input"
+    ],
+    "desktop_enabled": false,
+    "control_enabled": false,
+    "windows_restore_enabled": false,
+    "management_addresses": [
+      "192.0.2.10"
+    ],
+    "snapshot_roots": [
+      "C:/ApprovedSnapshotFolder"
+    ]
+  }
+}

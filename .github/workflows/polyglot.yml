@@ -1,0 +1,44 @@
+name: polyglot components
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r backend/requirements.txt
+      - name: Verify IAM approval and PAM ticket authorization
+        run: python -m pytest backend/tests/test_iam.py backend/tests/test_pam_redemption.py -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts && npm run build
+        working-directory: frontend
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          cache: false
+      - run: go vet ./... && go test ./... && go build .
+        working-directory: tools/sensor-report
+      - run: python3 tools/sensor-report/test_pipeline.py tools/sensor-report/sensor-report
+      - run: go vet ./... && go test ./... && go build .
+        working-directory: tools/sensor
+      - run: cargo test --locked && cargo run --locked -- ../../backend/network_sensor/example-http.pcap
+        working-directory: tools/pcap-check
+      - run: cargo test --locked && cargo clippy --locked -- -D warnings
+        working-directory: tools/capture_bound
+      - run: sudo apt-get update && sudo apt-get install -y libpam0g-dev libssl-dev
+      - run: cc -std=c11 -Wall -Wextra -Werror -fPIC -shared native/pam-ticket/pam_forensic_ticket.c -lpam -o native/pam-ticket/pam_forensic_ticket.so
+      - run: cc -std=c11 -Wall -Wextra -Werror -DFORENSIC_PAM_TEST -Inative/pam-ticket/tests/stubs native/pam-ticket/pam_forensic_ticket.c native/pam-ticket/tests/unit.c -o /tmp/pam-unit && /tmp/pam-unit
+      - name: Verify real Linux PAM conversation and pam_exec ticket handoff
+        run: sudo python3 native/pam-ticket/tests/linux_stack.py
+      - name: Verify live PAM to HTTPS backend authentication
+        run: sudo env FORENSIC_LINUX_PAM_TEST=1 "$(command -v python)" -m pytest backend/tests/test_pam_linux_live.py -q --basetemp=/tmp/forensic-live-pam-ci
+      - run: cc -std=c11 -Wall -Wextra -Werror native/pam_ticket.c -o /tmp/pam-ticket && /tmp/pam-ticket --self-test && echo pam_ticket self-test ok
+      - run: cmake -S native/evidence-hash -B native/evidence-hash/build && cmake --build native/evidence-hash/build
+      - run: python3 native/evidence-hash/test_hash.py native/evidence-hash/build/evidence-hash
+      - run: python3 -m unittest discover -s database -p 'test_*.py'
+      - name: Fail if a committed TypeScript build artifact is stale
+        run: git diff --exit-code -- backend/app/static/report-builder.js backend/app/static/network-search.js

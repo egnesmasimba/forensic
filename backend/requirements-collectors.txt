@@ -1,0 +1,22 @@
+# Optional collector dependencies for the endpoint agent.
+#
+# The agent runs with none of these installed, but each one unlocks collectors
+# that would otherwise report themselves unavailable. A collector whose
+# dependency is missing collects nothing at all, which is indistinguishable
+# from a host with no activity - so install the ones your deployment needs and
+# verify the result with:
+#
+#     python -m endpoint_agent doctor
+#
+# See endpoint_agent/collectors/dependencies.py for the authoritative mapping
+# from import name to distribution and to the collectors that depend on it.
+
+# Cross-platform
+psutil          # process, procforensics, fileops, incognito, citrix, usb, window
+watchdog        # filesystem change notification (fschange, fileops)
+pyperclip       # clipboard history
+Pillow          # screenshot capture and image encoding
+pywin32         # Windows: idle, window, clipboard, print, usb, rdp, registry
+pyudev          # Linux: USB device arrival
+mss             # Linux: screenshot capture (ImageGrab is unavailable there)
+pyobjc          # macOS: idle, window, clipboard, USB (Quartz/IOKit)

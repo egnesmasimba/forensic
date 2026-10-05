@@ -1,0 +1,79 @@
+{
+  "server_url": "http://localhost:8000",
+  "agent_token": "REPLACE_WITH_REGISTERED_AGENT_TOKEN",
+  "offline_queue_path": "state/offline.jsonl",
+  "collectors": {
+    "email": {
+      "enabled": false,
+      "state_path": "state/mail.sqlite",
+      "outlook": false,
+      "capture_existing": false,
+      "sources": [
+        {
+          "path": "C:/Users/USER/AppData/Roaming/Thunderbird/Profiles/PROFILE/Mail/ACCOUNT/Sent",
+          "format": "mbox",
+          "client": "thunderbird",
+          "direction": "outgoing"
+        }
+      ]
+    },
+    "transfers": {
+      "enabled": false,
+      "state_path": "state/transfers.sqlite",
+      "capture_existing": false,
+      "auto_discover": false,
+      "roots": [
+        {
+          "path": "C:/EvidenceSource",
+          "channel": "local"
+        },
+        {
+          "path": "E:/",
+          "channel": "usb"
+        },
+        {
+          "path": "//SERVER/Share",
+          "channel": "network_share"
+        },
+        {
+          "path": "C:/Users/USER/OneDrive",
+          "channel": "cloud",
+          "provider": "onedrive"
+        },
+        {
+          "path": "C:/Users/USER/Dropbox",
+          "channel": "cloud",
+          "provider": "dropbox"
+        },
+        {
+          "path": "C:/Users/USER/Google Drive",
+          "channel": "cloud",
+          "provider": "google drive"
+        },
+        {
+          "path": "C:/Users/USER/Box",
+          "channel": "cloud",
+          "provider": "box"
+        }
+      ]
+    },
+    "browser_downloads": {
+      "enabled": false,
+      "state_path": "state/downloads.sqlite",
+      "capture_existing": false,
+      "databases": [
+        {
+          "path": "C:/Users/USER/AppData/Local/Microsoft/Edge/User Data/Default/History",
+          "browser": "edge"
+        }
+      ]
+    }
+  },
+  "browser_capture": {
+    "enabled": false,
+    "allowed_origins": [
+      "chrome-extension://REPLACE_WITH_EXTENSION_ID/"
+    ],
+    "offline_queue_path": "state/browser-offline.jsonl"
+  }
+}

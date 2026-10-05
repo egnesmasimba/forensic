@@ -1,0 +1,3 @@
+message_id,occurred_at,sender,recipient_domain,attachment_name,attachment_bytes,encrypted
+example-mail-001,2026-10-03T09:00:00+02:00,example-user,gmail.com,report.pdf,12582912,yes
+example-mail-002,2026-10-03T09:05:00+02:00,example-user,company.example,notes.txt,1200,no

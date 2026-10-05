@@ -1,0 +1,9 @@
+{
+  "name": "forensic-ui",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.ui.json",
+    "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.ui.json --noEmit"
+  },
+  "devDependencies": { "typescript": "5.9.3" }
+}

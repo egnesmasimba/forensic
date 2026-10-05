@@ -1,0 +1,9 @@
+event_id,occurred_at,user,action,destination,bytes,records
+example-001,2026-10-03T09:00:00+02:00,example-user,data_export,report.csv,0,1500
+example-002,2026-10-03T09:05:00+02:00,example-user,file_transfer,usb,12582912,0
+example-003,2026-10-03T09:10:00+02:00,example-user,login_success,back-office,0,0
+example-004,2026-10-03T09:15:00+02:00,example-user,browser_download,quarterly-report.pdf,12582912,0
+example-005,2026-10-03T09:20:00+02:00,example-user,cloud_sync,onedrive,12582912,0
+example-006,2026-10-03T09:25:00+02:00,example-user,file_transfer,share,12582912,0
+example-007,2026-10-03T09:30:00+02:00,example-user,archive,case-files.zip,12582912,0
+example-008,2026-10-03T09:35:00+02:00,example-user,encrypt,case-files.zip.enc,12582912,0
