@@ -105,6 +105,8 @@ class Collector(abc.ABC):
                 f"missing optional dependencies: {', '.join(missing)} "
                 f"(install with: {dependencies.install_command(missing)})"
             )
+        if not reasons and not cls.supports_current_os():
+            reasons.append(f"{cls.name} runtime prerequisite is unavailable on {current_os_tag()}")
         return "; ".join(reasons) if reasons else None
 
     @property

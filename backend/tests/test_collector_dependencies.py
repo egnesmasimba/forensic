@@ -60,8 +60,9 @@ def test_unavailable_dependency_stops_collection() -> None:
 
 
 def test_collector_without_requirements_is_available() -> None:
-    assert _OptionalCollector.missing_requirements() == ("absent_on_this_platform",)
-    assert _OptionalCollector.is_available() is False
+    expected = ("absent_on_this_platform",) if sys.platform == "win32" else ()
+    assert _OptionalCollector.missing_requirements() == expected
+    assert _OptionalCollector.is_available() is (not expected)
 
     class _Clean(_FakeCollector):
         name = "clean"

@@ -26,7 +26,7 @@ ALLOWED = {
 
 
 def _safe_name(filename: str | None) -> tuple[str, str]:
-    raw = Path(filename or "attachment").name.strip() or "attachment"
+    raw = (filename or "attachment").replace("\\", "/").rsplit("/", 1)[-1].strip() or "attachment"
     suffix = Path(raw).suffix.lower()
     if suffix not in ALLOWED:
         raise HTTPException(status_code=400, detail="This file type is not allowed")

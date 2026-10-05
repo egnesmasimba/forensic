@@ -585,7 +585,10 @@ def create_engine(backend: str = DEFAULT_BACKEND, eal_args: list[str] | None = N
     if backend not in BACKENDS:
         raise CaptureError(f"Unknown capture backend {backend}; choose one of {', '.join(BACKENDS)}")
     factory = BACKEND_CLASSES[backend]
-    return factory(eal_args) if backend == "dpdk" else factory()
+    try:
+        return factory(eal_args) if backend == "dpdk" else factory()
+    except OSError as failure:
+        raise CaptureError(f"{backend} prerequisite library unavailable: {failure}") from failure
 
 
 def describe_backend(backend: str) -> dict:

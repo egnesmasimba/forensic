@@ -166,6 +166,8 @@ def generate_certificate(out_dir: os.PathLike[str] | str, hosts: Iterable[str], 
         .not_valid_before(moment - datetime.timedelta(minutes=5))
         .not_valid_after(moment + datetime.timedelta(days=days))
         .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()), critical=False)
+        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
         .add_extension(x509.KeyUsage(
             digital_signature=True, content_commitment=False, key_encipherment=False,
             data_encipherment=False, key_agreement=False, key_cert_sign=True,
@@ -183,6 +185,8 @@ def generate_certificate(out_dir: os.PathLike[str] | str, hosts: Iterable[str], 
         .not_valid_before(moment - datetime.timedelta(minutes=5))
         .not_valid_after(moment + datetime.timedelta(days=days))
         .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(server_key.public_key()), critical=False)
+        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
         .add_extension(x509.SubjectAlternativeName(sans), critical=False)
         .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=False)
         .add_extension(x509.KeyUsage(

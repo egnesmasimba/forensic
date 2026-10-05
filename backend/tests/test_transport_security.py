@@ -306,6 +306,7 @@ def test_real_https_listener_serves_the_api(tmp_path):
         # Trusting the generated CA through the same helper the agent uses, the
         # API answers over a verified TLS session.
         verify = tls.build_ssl_context({"ca_bundle": str(material["ca"])})
+        verify.verify_flags |= ssl.VERIFY_X509_STRICT
         with httpx.Client(verify=verify, timeout=10) as client:
             response = client.get(f"https://localhost:{port}/api/health")
         assert response.status_code == 200
